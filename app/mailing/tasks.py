@@ -42,16 +42,14 @@ def create_message_objects(mailing_id: int) -> list[MessageSchemas.MessageReques
 
 
 @celery_app.task(serializer="json", acks_late=False)
-def send_message_object(message: MessageSchemas.MessageRequestFull):
+def send_message_object(message: dict):
     def is_valid_time_to_send(message: MessageSchemas.MessageRequestFull) -> bool:
         return (
             message.mailing.start_time
             <= get_timezone_current_time(message.client.time_zone)
             <= message.mailing.end_time
         )
-
-    message = MessageSchemas.MessageRequestFull(**message)
-    
+    message = MessageSchemas.MessageRequestFull(**message)    
     if not is_valid_time_to_send(message):
         logger.info(f"Mailing already finished {message}")
         return False
