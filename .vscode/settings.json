@@ -4,6 +4,7 @@
   "python.linting.pylintArgs": [
     "--load-plugins",
     "pylint_django",
-    "--django-settings-module=example.settings"
-  ]
+    "--django-settings-module=app.app.settings"
+  ],
+  "python.formatting.provider": "black"
 }

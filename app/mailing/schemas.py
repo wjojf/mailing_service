@@ -32,9 +32,14 @@ class MailingSchemas:
 
 class MessageSchemas:
 
-    class MessageRequest(BaseModel):
+    class MessageRequestBase(BaseModel):
         id: int
-        phone: int
-        text: str
-    
         
+    class MessageRequest(MessageRequestBase):
+        text: str
+        phone: int
+    
+    class MessageRequestFull(MessageRequestBase):
+        mailing: MailingSchemas.MailingSchema
+        client: UserChemas.MailingUser
+
