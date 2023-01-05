@@ -50,6 +50,8 @@ def send_message_object(message: MessageSchemas.MessageRequestFull):
             <= message.mailing.end_time
         )
 
+    message = MessageSchemas.MessageRequestFull(**message)
+    
     if not is_valid_time_to_send(message):
         logger.info(f"Mailing already finished {message}")
         return False
