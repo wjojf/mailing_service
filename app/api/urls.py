@@ -14,6 +14,8 @@ v1_router.register('mailings', views.MailingViewSet)
 
 
 urlpatterns = [
+    
+    # Swagger UI
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "docs/",
@@ -23,4 +25,8 @@ urlpatterns = [
         ),
         name="swagger-ui",
     ),
+    
+    # Mailing statistics
+    path("mailing/<int:pk>/stats/", views.mailing_statistics_view, name="mailing-stats"),
+    
 ]+v1_router.urls

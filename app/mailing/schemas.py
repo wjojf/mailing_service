@@ -12,7 +12,6 @@ class OperatorSchema(BaseModel):
 
 
 class UserChemas:
-
     class MailingUser(BaseModel):
         id: int
         phone_number: int
@@ -21,25 +20,22 @@ class UserChemas:
 
 
 class MailingSchemas:
-
     class MailingSchema(BaseModel):
         id: int
         text: str
         start_time: datetime
         end_time: datetime
-    
 
 
 class MessageSchemas:
-
     class MessageRequestBase(BaseModel):
         id: int
-        
+
     class MessageRequest(MessageRequestBase):
         text: str
         phone: int
-    
+
     class MessageRequestFull(MessageRequestBase):
+        status: str
         mailing: MailingSchemas.MailingSchema
         client: UserChemas.MailingUser
-

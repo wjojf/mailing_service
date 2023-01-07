@@ -131,10 +131,22 @@ class Message(models.Model):
     def __str__(self):
         return f"Mailing {self.mailing.id} to {self.client}"
 
+    def set_status_sent(self):
+        self.status = self.SendingStatus.SENT
+
     def to_message_request(self) -> MessageSchemas.MessageRequestFull:
         return MessageSchemas.MessageRequestFull(
             id=self.id,
             phone=int(self.client.phone_number),
             mailing=self.mailing.to_mailing_schema(),
             client=self.client.to_mailing_client(),
+            status=self.status
         )
+
+
+def update_message_status(message_id: int) -> None:
+    try:
+        message_db = Message.objects.get(id=message_id)
+        message_db.set_status_sent()
+    except Exception:
+        return

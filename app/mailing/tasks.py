@@ -1,19 +1,20 @@
 from __future__ import absolute_import, unicode_literals
+from typing import Any, Optional
 from celery.utils.log import get_task_logger
 from mailing.filters import MailingFilter
-from mailing.models import Mailing, Message
+from mailing.models import Mailing, Message, update_message_status
 from mailing.schemas import MessageSchemas
 from app.celery import app as celery_app
 from mailing.utils import get_timezone_current_time
+from mailing.thrid_party import ProbeSender
+import asyncio
 
 logger = get_task_logger(__name__)
 
 
+
 @celery_app.task(serializer="json")
 def create_message_objects(mailing_id: int) -> list[MessageSchemas.MessageRequestFull]:
-
-    """Receives ID of mailing.models.Mailing
-    object and returns a list of  created messages in schema format"""
 
     try:
         mailing_obj = Mailing.objects.get(id=mailing_id)
@@ -41,23 +42,46 @@ def create_message_objects(mailing_id: int) -> list[MessageSchemas.MessageReques
     return messages
 
 
+@celery_app.task(serializer="json")
+def set_message_status(message_id: int) -> None:
+    logger.info(f"Setting message status. Received ID: {message_id}")
+    update_message_status(message_id=message_id)
+    logger.info(f"Sucessfully set status in database for Message {message_id}")
+
+
 @celery_app.task(serializer="json", acks_late=False)
-def send_message_object(message: dict):
+def send_message_object(message: dict) -> Optional[dict]:
     def is_valid_time_to_send(message: MessageSchemas.MessageRequestFull) -> bool:
         return (
             message.mailing.start_time
             <= get_timezone_current_time(message.client.time_zone)
             <= message.mailing.end_time
         )
-    message = MessageSchemas.MessageRequestFull(**message)    
+
+    message = MessageSchemas.MessageRequestFull(**message)
     if not is_valid_time_to_send(message):
         logger.info(f"Mailing already finished {message}")
         return False
 
-    message = MessageSchemas.MessageRequest(
+    message_request = MessageSchemas.MessageRequest(
         id=message.id,
         text=message.mailing.text,
         phone=message.client.phone_number,
     )
-    
-    logger.info(f"Simulating sending {type(message)} {message} to third party serivce")
+
+    logger.info(f"Sending {message_request} to third party serivce")
+
+    third_party_response = asyncio.run(ProbeSender.send_single(data=message_request))
+
+    if not ProbeSender.response_valid(third_party_response):
+        logger.info("Error sending {message}")
+        return
+
+    logger.info(f"Sucessfully sent {message_request}")
+    logger.info(f"Received Response: {third_party_response}")
+
+    set_message_status.delay(message_request.id) # call another task to update db status
+
+    return third_party_response
+
+
