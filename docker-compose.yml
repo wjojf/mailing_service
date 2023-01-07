@@ -1,2 +1,69 @@
--TODO:
-  -true
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    command: >
+      sh -c "python3 manage.py migrate &&
+             python3 manage.py wait_for_db &&
+             python3 manage.py create_admin &&
+             python3 manage.py runserver 8000"
+
+    env_file:
+      - ./.env
+    links:
+      - db:db
+    networks: 
+      - djangonetwork
+    depends_on:
+      - db
+  db:
+    platform: linux/amd64
+    image: postgres:13-alpine
+    env_file:
+      - ./.env
+    ports:
+      - "5432:5432"
+    networks:
+      - djangonetwork
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3-management
+    env_file:
+      - ./.env
+    ports:
+      - "5672:5672"
+      - "15672:15672" # here, we can access rabbitmq management plugin
+
+    networks:
+      - djangonetwork
+
+  celery:
+    restart: always
+    build:
+      context: .
+    command: celery -A app worker -l info
+    volumes:
+      - ./app:/app
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+      - rabbit
+      - app
+    networks:
+      - djangonetwork
+
+volumes:
+  pgdata:
+networks:
+  djangonetwork:
+    driver: bridge
