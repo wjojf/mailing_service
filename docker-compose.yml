@@ -15,6 +15,7 @@ services:
              python3 manage.py wait_for_db &&
              python3 manage.py migrate --noinput &&
              python3 manage.py create_admin &&
+             python3 manage.py loaddata fixtures/fixture.json &&
              python3 manage.py runserver 0.0.0.0:8000"
 
     env_file:
@@ -30,6 +31,8 @@ services:
     image: postgres:13-alpine
     env_file:
       - ./.env
+    environment:
+      - DB_HOST="db"
     ports:
       - "5432:5432"
     networks:
@@ -58,8 +61,6 @@ services:
       - ./app:/app
     env_file:
       - ./.env
-    environment:
-      - CELERY_BROKER_URL=amqp://guest:guest@rabbit:5672/
     depends_on:
       - db
       - rabbit

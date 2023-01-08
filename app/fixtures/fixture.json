@@ -1,0 +1,60 @@
+[
+    {
+        "model": "mailing.tag",
+        "pk": 1,
+        "fields": {
+            "value": "Important"
+        }
+    },
+    {
+        "model": "mailing.tag",
+        "pk": 2,
+        "fields": {
+            "value": "Another Tag"
+        }
+    },
+    {
+        "model": "mailing.client",
+        "pk": 1,
+        "fields": {
+            "phone_number": "79854456670",
+            "operator": 1,
+            "time_zone": "UTC"
+        }
+    },
+    {
+        "model": "mailing.client",
+        "pk": 2,
+        "fields": {
+            "phone_number": "79884446699",
+            "operator": 1,
+            "time_zone": "UTC"
+        }
+    },
+    {
+        "model": "mailing.operator",
+        "pk": 1,
+        "fields": {
+            "name": "Beeline",
+            "code": "bln"
+        }
+    },
+    {
+        "model": "mailing.operator",
+        "pk": 2,
+        "fields": {
+            "name": "MTS",
+            "code": "mts"
+        }
+    },
+    {
+        "model": "mailing.clientfilter",
+        "pk": 1,
+        "fields": {
+            "tags": [],
+            "operators": [
+                1
+            ]
+        }
+    }
+]

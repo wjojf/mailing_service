@@ -1,0 +1,21 @@
+[
+    {
+        "model": "mailing.client",
+        "pk": 1,
+        "fields": {
+            "phone_number": "79854456670",
+            "operator": 1,
+            "time_zone": "UTC"
+        }
+    },
+
+    {
+        "model": "mailing.client",
+        "pk": 2,
+        "fields": {
+            "phone_number": "79884446699",
+            "operator": 1,
+            "time_zone": "UTC"
+        }
+    }
+]

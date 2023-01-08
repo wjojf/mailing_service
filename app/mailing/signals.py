@@ -46,16 +46,21 @@ class MailingHandler(SignalHandler):
     @receiver(post_save, sender=Mailing)
     @on_transaction_commit
     def handle_post_save(sender, **kwargs):
+        print("[LOG] -> POST_SAVE")
+        if not kwargs["created"]:
+            return 
+        
         instance = kwargs["instance"]  # Mailing object
 
         if not instance:
+            print("[LOG] -> Instance already created, sending cancelled")
             return
 
-        # FIXME: catch exceptions
         try:
             messages = list(create_message_objects.delay(int(instance.id)).collect())
             messages = [m[1][0] for m in messages]  # FIXME: hardcode
-        except Exception:
+        except Exception as e:
+            print(f"[LOG] -> Error scheduling task: {e}")
             return
 
         print(f"[LOG] -> Received messages: {type(messages)}: {messages}")

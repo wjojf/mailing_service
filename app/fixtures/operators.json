@@ -1,0 +1,18 @@
+[
+    {
+        "model": "mailing.operator",
+        "pk": 1,
+        "fields": {
+            "name": "Beeline",
+            "code": "bln"
+        }
+    },
+    {
+        "model": "mailing.operator",
+        "pk": 2,
+        "fields": {
+            "name": "MTS",
+            "code": "mts"
+        }
+    }
+]

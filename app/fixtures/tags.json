@@ -1,0 +1,17 @@
+[
+    {
+        "model": "mailing.tag",
+        "pk": 1,
+        "fields":{
+            "value": "Important"
+        }
+    },
+
+    {
+        "model": "mailing.tag",
+        "pk": 2,
+        "fields": {
+            "value": "Another Tag"
+        }
+    }
+]

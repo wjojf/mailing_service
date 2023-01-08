@@ -1,0 +1,10 @@
+[
+    {
+        "model": "mailing.clientfilter",
+        "pk": 1,
+        "fields": {
+            "tags": [],
+            "operators": [1]
+        }
+    }
+]
