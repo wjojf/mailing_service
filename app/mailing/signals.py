@@ -51,9 +51,12 @@ class MailingHandler(SignalHandler):
         if not instance:
             return
 
-        messages = list(create_message_objects.delay(int(instance.id)).collect())
-        """FIXME: hardcode and can be crashed"""
-        messages = [m[1][0] for m in messages]
+        # FIXME: catch exceptions
+        try:
+            messages = list(create_message_objects.delay(int(instance.id)).collect())
+            messages = [m[1][0] for m in messages]  # FIXME: hardcode
+        except Exception:
+            return
 
         print(f"[LOG] -> Received messages: {type(messages)}: {messages}")
 

@@ -6,19 +6,22 @@ services:
       context: .
     ports:
       - "8000:8000"
+    expose:
+      - 8000
     volumes:
       - ./app:/app
     command: >
-      sh -c "python3 manage.py migrate &&
+      sh -c "
              python3 manage.py wait_for_db &&
+             python3 manage.py migrate --noinput &&
              python3 manage.py create_admin &&
-             python3 manage.py runserver 8000"
+             python3 manage.py runserver 0.0.0.0:8000"
 
     env_file:
       - ./.env
     links:
       - db:db
-    networks: 
+    networks:
       - djangonetwork
     depends_on:
       - db
@@ -32,7 +35,7 @@ services:
     networks:
       - djangonetwork
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db:/var/lib/postgresql/data
 
   rabbit:
     hostname: rabbit
@@ -55,6 +58,8 @@ services:
       - ./app:/app
     env_file:
       - ./.env
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbit:5672/
     depends_on:
       - db
       - rabbit
@@ -63,7 +68,7 @@ services:
       - djangonetwork
 
 volumes:
-  pgdata:
+  db:
 networks:
   djangonetwork:
     driver: bridge

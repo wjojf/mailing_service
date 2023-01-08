@@ -49,16 +49,7 @@ INSTALLED_APPS = [
 
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_CACHE_BACKEND = "django-cache"
-
-RABBITMQ = {
-    "PROTOCOL": "amqp",  # in prod change with "amqps"
-    "HOST": os.getenv("RABBITMQ_HOST", "localhost"),
-    "PORT": os.getenv("RABBITMQ_PORT", 5672),
-    "USER": os.getenv("RABBITMQ_DEFAULT_USER", "guest"),
-    "PASSWORD": os.getenv("RABBITMQ_DEFAULT_PASSWORD", "guest"),
-}
-
-CELERY_BROKER_URL = f"{RABBITMQ['PROTOCOL']}://{RABBITMQ['USER']}:{RABBITMQ['PASSWORD']}@{RABBITMQ['HOST']}:{RABBITMQ['PORT']}"
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_TASK_SERIALIZER = "json"

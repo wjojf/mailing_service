@@ -12,7 +12,7 @@ RUN mkdir /app
 COPY ./app /app
 WORKDIR /app
 
-RUN touch app/management/commands/create_admin.py 
-RUN touch app/management/commands/wait_for_db.py 
+RUN touch mailing/management/commands/create_admin.py 
+RUN touch mailing/management/commands/wait_for_db.py 
 
 EXPOSE 8000 5672 15672 5432
