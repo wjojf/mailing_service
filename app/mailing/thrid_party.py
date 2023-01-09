@@ -16,6 +16,8 @@ class ProbeSender(SenderInterface):
 
     CLIENT_ENDPOINT_URL = "https://probe.fbrq.cloud/v1/"
     CLIENT_SEND_MESSAGE_URL = CLIENT_ENDPOINT_URL + "send/{msgID}"
+    N_RETRIES = 5 
+    RETRY_DELAY_SECONDS = 1
 
     @classmethod
     def get_jwt_key_header(cls, *args, **kwargs):
@@ -25,23 +27,30 @@ class ProbeSender(SenderInterface):
     async def send_single(cls, data: MessageSchemas.MessageRequest) -> Optional[dict]:
 
         target_url: str = ProbeSender.CLIENT_SEND_MESSAGE_URL.format(msgID=data.id)
+    
         async with ClientSession() as session:
             headers = {
                 "Authorization": ProbeSender.get_jwt_key_header(),
                 "Content-Type": "application/json",
                 "Accept": "application/json"
             }
-            try:
-                print(f"[LOG] -> Request URI: {target_url}")
-                print(f"[LOG] -> Request headers: {headers}")
-                print(f"[LOG] -> Request data: {data.json()}")
-                async with session.post(
-                    url=target_url, data=data.json(), headers=headers
-                ) as response:
-                    return await response.json()
-            except Exception as e:
-                print(f"[LOG] -> Error sending data: {e}")
-                return None
+            
+            retries = 0
+            
+            while retries < ProbeSender.N_RETRIES:
+                
+                try:
+                    async with session.post(
+                        url=target_url, data=data.json(), headers=headers
+                    ) as response:
+                        return await response.json()
+                except Exception as e:
+                    print(f"[LOG] -> Error sending {data}: {e}")
+                    asyncio.sleep(ProbeSender.RETRY_DELAY_SECONDS)
+                    retries += 1
+            
+            return None
+                    
 
     @classmethod
     def response_valid(cls, response: dict) -> bool:
