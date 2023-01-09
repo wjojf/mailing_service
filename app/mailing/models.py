@@ -140,13 +140,15 @@ class Message(models.Model):
             phone=int(self.client.phone_number),
             mailing=self.mailing.to_mailing_schema(),
             client=self.client.to_mailing_client(),
-            status=self.status
+            status=self.status,
         )
 
 
-def update_message_status(message_id: int) -> None:
+def update_message_status(message_id: int) -> bool:
     try:
         message_db = Message.objects.get(id=message_id)
         message_db.set_status_sent()
+        message_db.save()
+        return True
     except Exception:
-        return
+        return False

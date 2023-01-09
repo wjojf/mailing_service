@@ -74,7 +74,7 @@ def send_message_object(message: dict) -> Optional[dict]:
     third_party_response = asyncio.run(ProbeSender.send_single(data=message_request))
 
     if not ProbeSender.response_valid(third_party_response):
-        logger.info("Error sending {message}")
+        logger.info(f"Error sending {message}")
         return
 
     logger.info(f"Sucessfully sent {message_request}")

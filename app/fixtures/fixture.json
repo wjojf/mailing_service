@@ -27,7 +27,7 @@
         "pk": 2,
         "fields": {
             "phone_number": "79884446699",
-            "operator": 1,
+            "operator": 2,
             "time_zone": "UTC"
         }
     },

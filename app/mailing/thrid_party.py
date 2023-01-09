@@ -15,25 +15,30 @@ class SenderInterface:
 class ProbeSender(SenderInterface):
 
     CLIENT_ENDPOINT_URL = "https://probe.fbrq.cloud/v1/"
+    CLIENT_SEND_MESSAGE_URL = CLIENT_ENDPOINT_URL + "send/{msgID}"
 
     @classmethod
-    def get_jwt_key(cls, *args, **kwargs):
-        return os.environ.get("THIRD_PARTY_JWT_KEY")
+    def get_jwt_key_header(cls, *args, **kwargs):
+        return "Bearer " + os.environ.get("THIRD_PARTY_JWT_KEY")
 
     @classmethod
     async def send_single(cls, data: MessageSchemas.MessageRequest) -> Optional[dict]:
 
-        target_url: str = ProbeSender.CLIENT_ENDPOINT_URL + f"send/{data.id}"
+        target_url: str = ProbeSender.CLIENT_SEND_MESSAGE_URL.format(msgID=data.id)
         async with ClientSession() as session:
             headers = {
-                "Authorization": ProbeSender.get_jwt_key(),
+                "Authorization": ProbeSender.get_jwt_key_header(),
                 "Content-Type": "application/json",
+                "Accept": "application/json"
             }
             try:
+                print(f"[LOG] -> Request URI: {target_url}")
+                print(f"[LOG] -> Request headers: {headers}")
+                print(f"[LOG] -> Request data: {data.json()}")
                 async with session.post(
-                    url=target_url, data=data.dict(), headers=headers
+                    url=target_url, data=data.json(), headers=headers
                 ) as response:
-                    return await response.json(content_type="text/json")
+                    return await response.json()
             except Exception as e:
                 print(f"[LOG] -> Error sending data: {e}")
                 return None
